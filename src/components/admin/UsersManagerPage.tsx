@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { userService } from '../../services/firebase';
 import { Card, Input, Button } from '../common';
-import { Users, Search, Edit2, CheckCircle, Plus } from 'lucide-react';
+import { Users, Search, Edit2, CheckCircle, Plus, Eye, EyeOff, Key } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export function UsersManagerPage() {
@@ -23,6 +23,17 @@ export function UsersManagerPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [successMsg, setSuccessMsg] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+
+    const generateRandomPassword = () => {
+        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+        let pass = '';
+        for (let i = 0; i < 10; i++) {
+            pass += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        setFormData(prev => ({ ...prev, password: pass }));
+        setShowPassword(true); // Automatically show generated password
+    };
 
     useEffect(() => {
         loadUsers();
@@ -78,6 +89,7 @@ export function UsersManagerPage() {
         });
         setSuccessMsg('');
         setErrorMsg('');
+        setShowPassword(false);
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -261,15 +273,36 @@ export function UsersManagerPage() {
 
                                     {mode === 'create' && (
                                         <div className="col-span-2">
-                                            <Input
-                                                label="Senha Provisória *"
-                                                name="password"
-                                                type="password"
-                                                value={formData.password}
-                                                onChange={handleInputChange}
-                                                placeholder="Mín. 6 caracteres"
-                                                required
-                                            />
+                                            <div className="flex gap-2 items-end">
+                                                <div className="flex-1 relative">
+                                                    <Input
+                                                        label="Senha Provisória *"
+                                                        name="password"
+                                                        type={showPassword ? "text" : "password"}
+                                                        value={formData.password}
+                                                        onChange={handleInputChange}
+                                                        placeholder="Mín. 6 caracteres"
+                                                        required
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowPassword(!showPassword)}
+                                                        className="absolute right-3 top-9 text-secondary-500 hover:text-secondary-300 transition-colors"
+                                                        tabIndex={-1}
+                                                    >
+                                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                                    </button>
+                                                </div>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    className="mb-1 h-11 px-3 border border-secondary-700 hover:bg-secondary-800 shrink-0"
+                                                    onClick={generateRandomPassword}
+                                                    title="Gerar senha aleatória"
+                                                >
+                                                    <Key className="w-4 h-4 text-primary-400" />
+                                                </Button>
+                                            </div>
                                         </div>
                                     )}
 

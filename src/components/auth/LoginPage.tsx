@@ -5,7 +5,7 @@
 import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, AlertCircle, Stethoscope, CheckCircle } from 'lucide-react';
+import { Mail, Lock, AlertCircle, Stethoscope, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button, Input, Card } from '../common';
 import { authService } from '../../services/firebase';
@@ -17,6 +17,7 @@ export function LoginPage() {
   const [resetMsg, setResetMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { login, error: authError } = useAuth();
   const navigate = useNavigate();
@@ -135,10 +136,10 @@ export function LoginPage() {
               disabled={isLoading}
             />
 
-            <div>
+            <div className="relative">
               <Input
                 label="Senha"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -146,6 +147,14 @@ export function LoginPage() {
                 autoComplete="current-password"
                 disabled={isLoading}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-9 text-secondary-500 hover:text-secondary-300 transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
               <div className="flex justify-end mt-2">
                 <button
                   type="button"
