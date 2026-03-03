@@ -156,7 +156,7 @@ export default function ReviewPage() {
                                 <Button
                                     variant="primary"
                                     className="flex items-center gap-2"
-                                    onClick={() => navigate(`/questoes?subject=${activeItem.subject}`)}
+                                    onClick={() => navigate(`/questoes?subject=${activeItem.subject}&topic=${encodeURIComponent(activeItem.title)}`)}
                                 >
                                     <ClipboardList className="w-5 h-5" /> Fazer Questões
                                 </Button>

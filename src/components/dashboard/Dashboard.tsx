@@ -326,7 +326,7 @@ export function Dashboard() {
                     <Button variant="secondary" className="flex items-center justify-center gap-2 text-xs" onClick={() => navigate(`/flashcards?subject=${nextItem.subject}`)}>
                       <BrainCircuit className="w-4 h-4" /> Flashcards
                     </Button>
-                    <Button variant="secondary" className="flex items-center justify-center gap-2 text-xs" onClick={() => navigate(`/questoes?subject=${nextItem.subject}`)}>
+                    <Button variant="secondary" className="flex items-center justify-center gap-2 text-xs" onClick={() => navigate(`/questoes?subject=${nextItem.subject}&topic=${encodeURIComponent(nextItem.title)}`)}>
                       <ClipboardList className="w-4 h-4" /> Questões
                     </Button>
                   </div>

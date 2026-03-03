@@ -189,12 +189,13 @@ export function QuestionsPage() {
   const { recentlyAnswered, refreshSRSData } = useStudy();
   const [searchParams] = useSearchParams();
   const initSubject = searchParams.get('subject') as MedicalSubject | null;
+  const initSubSubject = searchParams.get('topic');
   const autoStartAttempted = useRef(false);
 
-  const [filterOpen, setFilterOpen] = useState(!initSubject);
+  const [filterOpen, setFilterOpen] = useState(!initSubject && !initSubSubject);
   const [filters, setFilters] = useState<QuestionFilters>({
     subjects: initSubject && subjects.includes(initSubject) ? [initSubject] : [],
-    subSubjects: [],
+    subSubjects: initSubSubject ? [initSubSubject] : [],
     excludeRecent: true,
     quantity: 10,
     onlyWrong: false,
@@ -251,13 +252,19 @@ export function QuestionsPage() {
   };
 
   useEffect(() => {
-    if (initSubject && subjects.includes(initSubject) && !autoStartAttempted.current) {
+    // Check if we should auto-start the session
+    const hasInitialFilters = (initSubject && subjects.includes(initSubject)) || initSubSubject;
+    if (hasInitialFilters && !autoStartAttempted.current) {
       autoStartAttempted.current = true;
-      const autoFilters = { ...filters, subjects: [initSubject] };
+      const autoFilters = {
+        ...filters,
+        subjects: initSubject && subjects.includes(initSubject) ? [initSubject] : [],
+        subSubjects: initSubSubject ? [initSubSubject] : []
+      };
       setFilters(autoFilters);
       startSession(autoFilters);
     }
-  }, [initSubject]);
+  }, [initSubject, initSubSubject]);
 
   const handleNext = async () => {
     if (!auth.currentUser) return;
