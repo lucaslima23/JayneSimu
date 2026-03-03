@@ -259,7 +259,17 @@ export const questionService = {
     }
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    let results = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+
+    // Local filter for subSubjects to bypass Firestore's multiple 'in' clause limitation
+    if (filters.subSubjects && filters.subSubjects.length > 0) {
+      results = results.filter(q => {
+        const sub = q.subSubject || 'Geral/Outros';
+        return filters.subSubjects!.some(fs => fs.toLowerCase().trim() === sub.toLowerCase().trim());
+      });
+    }
+
+    return results;
   },
 
   async getQuestion(id: string) {
