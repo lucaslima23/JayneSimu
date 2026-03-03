@@ -254,7 +254,8 @@ export const questionService = {
       q = query(q, where('difficulty', '==', filters.difficulty));
     }
 
-    if (filters.limit) {
+    // Se tivermos filtro local de sub-assunto, não limitamos no Firebase, senão a página recorta as questões erradas
+    if (filters.limit && (!filters.subSubjects || filters.subSubjects.length === 0)) {
       q = query(q, limit(filters.limit));
     }
 
@@ -263,10 +264,19 @@ export const questionService = {
 
     // Local filter for subSubjects to bypass Firestore's multiple 'in' clause limitation
     if (filters.subSubjects && filters.subSubjects.length > 0) {
+      const normalize = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+      const targetSubs = filters.subSubjects.map(fs => normalize(fs));
+
       results = results.filter(q => {
-        const sub = q.subSubject || 'Geral/Outros';
-        return filters.subSubjects!.some(fs => fs.toLowerCase().trim() === sub.toLowerCase().trim());
+        const sub = normalize(q.subSubject || 'Geral/Outros');
+        // Flexible matching: exact match or partial inclusion
+        return targetSubs.some(ts => sub === ts || sub.includes(ts) || ts.includes(sub));
       });
+
+      // Aplica o limite correto apenas depois de ter filtrado localmente
+      if (filters.limit) {
+        results = results.slice(0, filters.limit);
+      }
     }
 
     return results;
