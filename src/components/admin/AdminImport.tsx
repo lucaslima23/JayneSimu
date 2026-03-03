@@ -7,7 +7,9 @@ import {
   deleteDoc,
   doc,
   updateDoc,
-  writeBatch
+  writeBatch,
+  query,
+  where
 } from 'firebase/firestore';
 
 export function AdminImport() {
@@ -19,6 +21,11 @@ export function AdminImport() {
   const [reports, setReports] = useState<any[]>([]);
   const [editingQuestion, setEditingQuestion] = useState<any>(null);
   const [expandedAreas, setExpandedAreas] = useState<{ [key: string]: boolean }>({});
+
+  // States for sub-subject viewing and renaming
+  const [viewingSubSubject, setViewingSubSubject] = useState<{ area: string, sub: string, questions: any[] } | null>(null);
+  const [newSubSubjectName, setNewSubSubjectName] = useState('');
+  const [isLoadingSub, setIsLoadingSub] = useState(false);
 
   // 1. Carregar Estatísticas e Reports
   const carregarDados = async () => {
@@ -59,6 +66,52 @@ export function AdminImport() {
 
   const toggleArea = (area: string) => {
     setExpandedAreas(prev => ({ ...prev, [area]: !prev[area] }));
+  };
+
+  const openSubSubject = async (area: string, sub: string) => {
+    setIsLoadingSub(true);
+    setViewingSubSubject({ area, sub, questions: [] });
+    setNewSubSubjectName(sub);
+
+    try {
+      const q = query(collection(db, 'questions'), where('subject', '==', area));
+      const snapshot = await getDocs(q);
+
+      const subQuestions = snapshot.docs
+        .map(d => ({ id: d.id, ...d.data() } as any))
+        .filter(q => (q.subSubject || 'Geral/Outros') === sub);
+
+      setViewingSubSubject({ area, sub, questions: subQuestions });
+    } catch (e) {
+      alert("Erro ao carregar questões do assunto.");
+      setViewingSubSubject(null);
+    } finally {
+      setIsLoadingSub(false);
+    }
+  };
+
+  const renameSubSubject = async () => {
+    if (!viewingSubSubject || !newSubSubjectName.trim() || newSubSubjectName === viewingSubSubject.sub) return;
+
+    try {
+      setIsLoadingSub(true);
+      const batch = writeBatch(db);
+
+      viewingSubSubject.questions.forEach(q => {
+        const ref = doc(db, 'questions', q.id);
+        batch.update(ref, { subSubject: newSubSubjectName });
+      });
+
+      await batch.commit();
+
+      alert(`Assunto renomeado para "${newSubSubjectName}" com sucesso! (${viewingSubSubject.questions.length} questões atualizadas)`);
+      setViewingSubSubject(null);
+      carregarDados();
+    } catch (e) {
+      alert("Erro ao renomear assunto.");
+    } finally {
+      setIsLoadingSub(false);
+    }
   };
 
   // 2. Importar Lote de Questões
@@ -204,9 +257,16 @@ export function AdminImport() {
             <div style={{ fontSize: '12px', color: '#3b82f6', marginTop: '5px' }}>{expandedAreas[area] ? '▲ Ocultar Assuntos' : '▼ Ver Assuntos'}</div>
 
             {expandedAreas[area] && (
-              <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #334155', textAlign: 'left' }}>
+              <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #334155', textAlign: 'left', maxHeight: '200px', overflowY: 'auto' }}>
                 {Object.entries(data.subs).sort((a, b) => b[1] - a[1]).map(([sub, count]) => (
-                  <div key={sub} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '4px 0', color: '#cbd5e1' }}>
+                  <div
+                    key={sub}
+                    style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '6px 8px', color: '#cbd5e1', cursor: 'pointer', borderRadius: '4px', transition: 'background 0.2s' }}
+                    onClick={(e) => { e.stopPropagation(); openSubSubject(area, sub); }}
+                    onMouseOver={(e) => e.currentTarget.style.background = '#475569'}
+                    onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+                    title="Clique para organizar este assunto"
+                  >
                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '70%' }}>{sub}</span>
                     <span style={{ fontWeight: 'bold', color: '#94a3b8' }}>{count}</span>
                   </div>
@@ -271,20 +331,113 @@ export function AdminImport() {
             <h3 style={{ marginTop: 0 }}>Editando Questão</h3>
             <label style={{ fontSize: '12px', color: '#94a3b8' }}>Enunciado:</label>
             <textarea
-              style={{ width: '100%', height: '150px', margin: '10px 0', borderRadius: '8px', padding: '10px' }}
-              value={editingQuestion.questionStatement}
-              onChange={(e) => setEditingQuestion({ ...editingQuestion, questionStatement: e.target.value })}
+              style={{ width: '100%', height: '150px', margin: '10px 0', borderRadius: '8px', padding: '10px', color: '#000' }}
+              value={editingQuestion.questionStatement || editingQuestion.statement}
+              onChange={(e) => setEditingQuestion({ ...editingQuestion, questionStatement: e.target.value, statement: e.target.value })}
             />
             <label style={{ fontSize: '12px', color: '#94a3b8' }}>Explicação:</label>
             <textarea
-              style={{ width: '100%', height: '100px', margin: '10px 0', borderRadius: '8px', padding: '10px' }}
+              style={{ width: '100%', height: '100px', margin: '10px 0', borderRadius: '8px', padding: '10px', color: '#000' }}
               value={editingQuestion.explanation}
               onChange={(e) => setEditingQuestion({ ...editingQuestion, explanation: e.target.value })}
             />
             <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-              <button onClick={salvarEdicao} style={{ background: '#10b981', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Salvar e Resolver</button>
+              <button
+                onClick={async () => {
+                  await salvarEdicao();
+                  // Refetch sub-subject if modal is open
+                  if (viewingSubSubject) openSubSubject(viewingSubSubject.area, newSubSubjectName);
+                }}
+                style={{ background: '#10b981', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+              >
+                Salvar e Resolver
+              </button>
               <button onClick={() => setEditingQuestion(null)} style={{ background: '#64748b', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Cancelar</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE SUB-ASSUNTO */}
+      {viewingSubSubject && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9998 }}>
+          <div style={{ background: '#0f172a', padding: '30px', borderRadius: '15px', width: '90%', maxWidth: '900px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #334155', paddingBottom: '20px', marginBottom: '20px' }}>
+              <div style={{ flex: 1 }}>
+                <span style={{ fontSize: '12px', color: '#3b82f6', textTransform: 'uppercase', fontWeight: 'bold' }}>{viewingSubSubject.area}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '5px' }}>
+                  <input
+                    type="text"
+                    value={newSubSubjectName}
+                    onChange={(e) => setNewSubSubjectName(e.target.value)}
+                    style={{ background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '8px 12px', borderRadius: '6px', fontSize: '20px', fontWeight: 'bold', width: '300px' }}
+                  />
+                  <button
+                    onClick={renameSubSubject}
+                    disabled={isLoadingSub || newSubSubjectName === viewingSubSubject.sub}
+                    style={{ background: newSubSubjectName !== viewingSubSubject.sub ? '#10b981' : '#475569', color: '#fff', border: 'none', padding: '8px 15px', borderRadius: '6px', cursor: newSubSubjectName !== viewingSubSubject.sub ? 'pointer' : 'not-allowed', fontWeight: 'bold' }}
+                  >
+                    Renomear Assunto
+                  </button>
+                </div>
+                <p style={{ margin: '10px 0 0 0', color: '#94a3b8', fontSize: '14px' }}>
+                  Isso atualizará este nome em todas as {viewingSubSubject.questions.length} questões listadas abaixo simultaneamente.
+                </p>
+              </div>
+
+              <button onClick={() => setViewingSubSubject(null)} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '8px 15px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
+                Fechar ✖
+              </button>
+            </div>
+
+            {/* Modal Content - List of Questions */}
+            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '10px' }}>
+              {isLoadingSub ? (
+                <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>⏳ Carregando questões...</div>
+              ) : viewingSubSubject.questions.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>Nenhuma questão encontrada com estes estritos filtros.</div>
+              ) : (
+                <div style={{ display: 'grid', gap: '15px' }}>
+                  {viewingSubSubject.questions.map((q, idx) => (
+                    <div key={q.id} style={{ background: '#1e293b', padding: '20px', borderRadius: '10px', border: '1px solid #334155' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                        <span style={{ fontSize: '14px', color: '#94a3b8', fontWeight: 'bold' }}>Questão {idx + 1}</span>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <span style={{ fontSize: '12px', background: '#334155', padding: '4px 8px', borderRadius: '4px', textTransform: 'capitalize' }}>Diff: {q.difficulty}</span>
+                          <button
+                            onClick={() => setEditingQuestion({ ...q, questionId: q.id, questionStatement: q.statement })}
+                            style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '4px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                          >
+                            Editar ✎
+                          </button>
+                        </div>
+                      </div>
+
+                      <div style={{ fontSize: '15px', color: '#e2e8f0', lineHeight: '1.5', marginBottom: '15px' }}>
+                        {q.statement}
+                      </div>
+
+                      <div style={{ display: 'grid', gap: '8px', marginBottom: '15px' }}>
+                        {q.options?.map((opt: any) => (
+                          <div key={opt.id} style={{ padding: '8px 12px', borderRadius: '6px', background: opt.letter === q.correctAnswer ? '#10b98133' : '#0f172a', border: opt.letter === q.correctAnswer ? '1px solid #10b981' : '1px solid #334155', color: opt.letter === q.correctAnswer ? '#34d399' : '#94a3b8', fontSize: '14px' }}>
+                            <strong>{opt.letter})</strong> {opt.text}
+                          </div>
+                        ))}
+                      </div>
+
+                      {q.explanation && (
+                        <div style={{ background: '#3b82f61a', borderLeft: '3px solid #3b82f6', padding: '10px', borderRadius: '0 4px 4px 0', fontSize: '13px', color: '#cbd5e1' }}>
+                          <strong>💡 Explicação:</strong> {q.explanation}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
       )}
