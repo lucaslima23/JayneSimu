@@ -92,7 +92,7 @@ export function LoginPage() {
             </motion.div>
 
             <h1 className="text-3xl font-display font-bold text-white mb-2">
-              MedPrep
+              JayneSimu
             </h1>
             <p className="text-secondary-400">
               Plataforma de Estudos para Residência Médica

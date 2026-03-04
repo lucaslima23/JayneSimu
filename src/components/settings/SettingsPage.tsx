@@ -77,7 +77,7 @@ export default function SettingsPage() {
                         </div>
                         <div>
                             <h2 className="text-lg font-semibold text-white">Segurança</h2>
-                            <p className="text-sm text-secondary-400">Proteger sua conta MedPrep</p>
+                            <p className="text-sm text-secondary-400">Proteger sua conta JayneSimu</p>
                         </div>
                     </div>
 

@@ -1,6 +1,6 @@
 {
-  "name": "MedPrep - Preparação Residência Médica",
-  "short_name": "MedPrep",
+  "name": "JayneSimu - Preparação Residência Médica",
+  "short_name": "JayneSimu",
   "description": "Plataforma completa de estudos para residência médica ENAMED/ENARE com questões, simulados, flashcards e sistema SRS de revisão",
   "start_url": "/",
   "display": "standalone",

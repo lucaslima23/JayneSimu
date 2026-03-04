@@ -1,5 +1,5 @@
 // ============================================
-// MEDPREP LMS - APP COMPONENT
+// JAYNESIMU LMS - APP COMPONENT
 // ============================================
 
 import { lazy, Suspense, useEffect } from 'react';

@@ -1,5 +1,5 @@
 // ============================================
-// MEDPREP LMS - MAIN ENTRY POINT
+// JAYNESIMU LMS - MAIN ENTRY POINT
 // ============================================
 
 import React from 'react';

@@ -127,7 +127,7 @@ Componentes acessam via useStudy()
 ## 🗂️ Estrutura de Arquivos Entregues
 
 ```
-c:\Users\lucas\OneDrive\Documentos\MedPrep\
+c:\Users\lucas\OneDrive\Documentos\JayneSimu\
 │
 ├── 📖 DOCUMENTAÇÃO
 │   ├── IMPLEMENTATION_SUMMARY.md   ⭐ COMECE AQUI

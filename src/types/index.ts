@@ -1,5 +1,5 @@
 // ============================================
-// MEDPREP LMS - TYPE DEFINITIONS
+// JAYNESIMU LMS - TYPE DEFINITIONS
 // ============================================
 
 // User Types

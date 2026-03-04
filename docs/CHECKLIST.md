@@ -1,7 +1,7 @@
 # ✓ CHECKLIST IMPRIMÍVEL - MIGRAÇÃO FIRESTORE
 
 **Data:** 7 de Fevereiro de 2026  
-**Projeto:** MedPrep - Migração Cronograma  
+**Projeto:** JayneSimu - Migração Cronograma  
 **Status:** ✅ IMPLEMENTAÇÃO CONCLUÍDA
 
 ---

@@ -1,5 +1,5 @@
 // ============================================
-// MEDPREP LMS - RANKINGS PAGE
+// JAYNESIMU LMS - RANKINGS PAGE
 // ============================================
 
 import { useState, useEffect } from 'react';

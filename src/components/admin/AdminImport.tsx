@@ -236,7 +236,7 @@ export function AdminImport() {
 
   return (
     <div style={{ padding: '40px', color: 'white', maxWidth: '1000px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '30px' }}>Painel Administrativo - MedPrep</h1>
+      <h1 style={{ textAlign: 'center', marginBottom: '30px' }}>Painel Administrativo - JayneSimu</h1>
 
       {/* DASHBOARD DE QUESTÕES */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px', marginBottom: '40px', alignItems: 'start' }}>

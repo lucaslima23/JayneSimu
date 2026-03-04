@@ -1,4 +1,4 @@
-# Configuração de Ícones PWA para MedPrep
+# Configuração de Ícones PWA para JayneSimu
 
 ## ✅ O que foi corrigido
 
@@ -50,7 +50,7 @@ public/
 
 ### Android (Chrome)
 1. Abra `localhost:5174` no Chrome
-2. Menu → "Instalar MedPrep"
+2. Menu → "Instalar JayneSimu"
 3. O ícone de 192x192 será usado
 
 ### iPhone (Safari)
@@ -59,7 +59,7 @@ public/
 3. Usa `apple-touch-icon.png` ou `favicon.svg` como fallback
 
 ### Windows/Mac/Linux
-1. Menu de 3 pontos → "Instalar MedPrep"
+1. Menu de 3 pontos → "Instalar JayneSimu"
 2. O ícone de 512x512 será usado
 
 ## 🔧 Atualizar Manifest

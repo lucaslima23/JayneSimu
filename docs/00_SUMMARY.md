@@ -136,7 +136,7 @@ testScheduleMigration.ts
 ## 🗂️ ESTRUTURA DE ARQUIVOS
 
 ```
-MedPrep/
+JayneSimu/
 │
 ├── 📖 Documentação
 │   ├── INDEX.md                     ← Você está aqui!

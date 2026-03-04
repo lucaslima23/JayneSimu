@@ -108,7 +108,7 @@ Sua solicitação para migrar a lógica de cronograma para Firestore foi **imple
 ## 🗂️ ESTRUTURA DE ARQUIVOS
 
 ```
-c:\Users\lucas\OneDrive\Documentos\MedPrep\
+c:\Users\lucas\OneDrive\Documentos\JayneSimu\
 
   📖 DOCUMENTAÇÃO
   ├─ 00_SUMMARY.md ⭐ (Você está aqui!)

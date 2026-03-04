@@ -123,7 +123,7 @@ export function MainLayout() {
               <Stethoscope className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-display font-bold text-white">MedPrep</h1>
+              <h1 className="text-xl font-display font-bold text-white">JayneSimu</h1>
               <p className="text-xs text-secondary-500">Residência Médica</p>
             </div>
           </div>
@@ -234,7 +234,7 @@ export function MainLayout() {
 
             <div className="flex items-center gap-2">
               <Stethoscope className="w-5 h-5 text-primary-500" />
-              <span className="font-display font-bold text-white">MedPrep</span>
+              <span className="font-display font-bold text-white">JayneSimu</span>
             </div>
 
             <div className="w-10" /> {/* Spacer for centering */}

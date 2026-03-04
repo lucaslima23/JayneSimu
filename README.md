@@ -1,8 +1,8 @@
-# MedPrep LMS 🩺
+# JayneSimu LMS 🩺
 
 Plataforma de Estudos para Residência Médica (ENAMED/ENARE)
 
-![MedPrep Dashboard](https://via.placeholder.com/800x400/0f172a/14b8a6?text=MedPrep+LMS)
+![JayneSimu Dashboard](https://via.placeholder.com/800x400/0f172a/14b8a6?text=JayneSimu+LMS)
 
 ## 📋 Índice
 
@@ -21,7 +21,7 @@ Plataforma de Estudos para Residência Médica (ENAMED/ENARE)
 
 ## 🎯 Visão Geral
 
-MedPrep é uma plataforma LMS (Learning Management System) especializada na preparação para provas de residência médica, com foco em:
+JayneSimu é uma plataforma LMS (Learning Management System) especializada na preparação para provas de residência médica, com foco em:
 
 - **Aprendizado Ativo**: Sistema de repetição espaçada (SRS) para otimizar a retenção
 - **Cronograma Personalizado**: Agenda de estudos baseada em calendário
@@ -137,8 +137,8 @@ MedPrep é uma plataforma LMS (Learning Management System) especializada na prep
 
 ```bash
 # 1. Clone o repositório
-git clone https://github.com/seu-usuario/medprep-lms.git
-cd medprep-lms
+git clone https://github.com/seu-usuario/jaynesimu-lms.git
+cd jaynesimu-lms
 
 # 2. Instale as dependências
 npm install
@@ -181,7 +181,7 @@ VITE_FIREBASE_APP_ID=1:123456789:web:abc123
 VITE_GOOGLE_DRIVE_API_KEY=AIzaSy...
 
 # App Config
-VITE_APP_NAME=MedPrep
+VITE_APP_NAME=JayneSimu
 VITE_APP_VERSION=1.0.0
 ```
 
@@ -254,7 +254,7 @@ No Firestore, crie manualmente o primeiro usuário admin:
 // Document ID: (use o UID do Firebase Auth)
 {
   "uid": "firebase-auth-uid",
-  "email": "admin@medprep.com",
+  "email": "admin@jaynesimu.com",
   "displayName": "Administrador",
   "role": "admin",
   "createdAt": "2025-01-01T00:00:00Z",
@@ -365,7 +365,7 @@ jobs:
 ## 📁 Estrutura do Projeto
 
 ```
-medprep-lms/
+jaynesimu-lms/
 ├── public/
 │   ├── favicon.svg
 │   ├── pwa-192x192.png

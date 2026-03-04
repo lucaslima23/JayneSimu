@@ -59,7 +59,7 @@ Crie um arquivo JSON com seus itens:
 
 ### Passo 2: Acessar Firebase
 1. Vá para: [Firebase Console](https://console.firebase.google.com)
-2. Selecione seu projeto **MedPrep**
+2. Selecione seu projeto **JayneSimu**
 3. Acesse **Firestore Database**
 4. Clique em **meta_contents** (coleção)
 
