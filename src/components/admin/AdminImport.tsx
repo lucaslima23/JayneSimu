@@ -22,6 +22,17 @@ export function AdminImport() {
   const [editingQuestion, setEditingQuestion] = useState<any>(null);
   const [expandedAreas, setExpandedAreas] = useState<{ [key: string]: boolean }>({});
 
+  // States for manual question adding
+  const [mqStatement, setMqStatement] = useState('');
+  const [mqOptions, setMqOptions] = useState<string[]>(['', '', '', '', '']);
+  const [mqCorrectOption, setMqCorrectOption] = useState<number>(0);
+  const [mqExplanation, setMqExplanation] = useState('');
+  const [mqSubject, setMqSubject] = useState('');
+  const [mqCustomSubject, setMqCustomSubject] = useState('');
+  const [mqSubSubject, setMqSubSubject] = useState('');
+  const [mqCustomSubSubject, setMqCustomSubSubject] = useState('');
+  const [isAddingQuestion, setIsAddingQuestion] = useState(false);
+
   // States for sub-subject viewing and renaming
   const [viewingSubSubject, setViewingSubSubject] = useState<{ area: string, sub: string, questions: any[] } | null>(null);
   const [newSubSubjectName, setNewSubSubjectName] = useState('');
@@ -142,7 +153,59 @@ export function AdminImport() {
       setJsonInput('');
       carregarDados();
     } catch (error) {
-      setStatus('❌ Erve: JSON inválido.');
+      setStatus('❌ Erro: JSON inválido.');
+    }
+  };
+
+  // Salvar Questão Manual
+  const salvarQuestaoManual = async () => {
+    if (!mqStatement.trim() || mqOptions.some(opt => !opt.trim())) {
+      setStatus('❌ Erro: Preencha o enunciado e todas as 5 alternativas.');
+      return;
+    }
+
+    const finalSubject = mqSubject === 'novo' ? mqCustomSubject.trim().toLowerCase() : mqSubject;
+    const finalSubSubject = mqSubSubject === 'novo' ? mqCustomSubSubject.trim() : mqSubSubject;
+
+    if (!finalSubject) {
+      setStatus('❌ Erro: Defina um Assunto.');
+      return;
+    }
+
+    try {
+      setIsAddingQuestion(true);
+      setStatus('⏳ Salvando questão manual...');
+
+      await addDoc(collection(db, 'questions'), {
+        statement: mqStatement,
+        options: mqOptions.map((opt: string, index: number) => ({
+          id: `opt-${index}-${Date.now()}`,
+          letter: String.fromCharCode(65 + index),
+          text: opt
+        })),
+        correctAnswer: String.fromCharCode(65 + mqCorrectOption),
+        explanation: mqExplanation,
+        subject: finalSubject,
+        subSubject: finalSubSubject,
+        difficulty: 'media',
+        createdAt: new Date().toISOString()
+      });
+
+      setStatus('✅ Questão manual adicionada com sucesso!');
+
+      // Limpar formulário
+      setMqStatement('');
+      setMqOptions(['', '', '', '', '']);
+      setMqCorrectOption(0);
+      setMqExplanation('');
+      setMqCustomSubject('');
+      setMqCustomSubSubject('');
+
+      carregarDados();
+    } catch (error) {
+      setStatus('❌ Erro ao salvar a questão manual.');
+    } finally {
+      setIsAddingQuestion(false);
     }
   };
 
@@ -277,7 +340,125 @@ export function AdminImport() {
         ))}
       </div>
 
-      {/* IMPORTADOR */}
+      {/* ADICIONAR QUESTÃO MANUAL */}
+      <div style={{ background: '#0f172a', padding: '25px', borderRadius: '15px', marginBottom: '40px' }}>
+        <h2 style={{ fontSize: '18px', marginBottom: '15px', color: '#10b981' }}>📝 Adicionar Questão Manualmente</h2>
+
+        <div style={{ display: 'grid', gap: '15px', marginBottom: '20px' }}>
+          <div>
+            <label style={{ fontSize: '14px', color: '#94a3b8', display: 'block', marginBottom: '5px' }}>Enunciado da Questão:</label>
+            <textarea
+              value={mqStatement}
+              onChange={(e) => setMqStatement(e.target.value)}
+              placeholder="Digite o enunciado completo..."
+              style={{ width: '100%', height: '120px', borderRadius: '8px', padding: '12px', color: '#000' }}
+            />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+            {/* Assunto e Sub-Assunto Dinâmicos */}
+            <div>
+              <label style={{ fontSize: '14px', color: '#94a3b8', display: 'block', marginBottom: '5px' }}>Assunto (Disciplina):</label>
+              <select
+                value={mqSubject}
+                onChange={(e) => {
+                  setMqSubject(e.target.value);
+                  setMqSubSubject('');
+                }}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', color: '#000', marginBottom: mqSubject === 'novo' ? '10px' : '0' }}
+              >
+                <option value="">Selecione...</option>
+                {Object.keys(stats).map(s => <option key={s} value={s}>{s.toUpperCase()}</option>)}
+                <option value="novo">+ Criar Novo Assunto</option>
+              </select>
+              {mqSubject === 'novo' && (
+                <input
+                  type="text"
+                  placeholder="Nome do Novo Assunto"
+                  value={mqCustomSubject}
+                  onChange={(e) => setMqCustomSubject(e.target.value)}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', color: '#000' }}
+                />
+              )}
+            </div>
+
+            <div>
+              <label style={{ fontSize: '14px', color: '#94a3b8', display: 'block', marginBottom: '5px' }}>Sub-Tópico:</label>
+              <select
+                value={mqSubSubject}
+                onChange={(e) => setMqSubSubject(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', color: '#000', marginBottom: mqSubSubject === 'novo' ? '10px' : '0' }}
+                disabled={!mqSubject && mqSubject !== 'novo'}
+              >
+                <option value="">Selecione...</option>
+                {mqSubject && stats[mqSubject] && Object.keys(stats[mqSubject].subs).map(s => <option key={s} value={s}>{s}</option>)}
+                <option value="novo">+ Criar Novo Sub-Tópico</option>
+              </select>
+              {mqSubSubject === 'novo' && (
+                <input
+                  type="text"
+                  placeholder="Nome do Novo Sub-Tópico"
+                  value={mqCustomSubSubject}
+                  onChange={(e) => setMqCustomSubSubject(e.target.value)}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', color: '#000' }}
+                />
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label style={{ fontSize: '14px', color: '#94a3b8', display: 'block', marginBottom: '10px' }}>Alternativas (Selecione a Correta no rádio lateral):</label>
+            {mqOptions.map((opt, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                <input
+                  type="radio"
+                  name="correctOption"
+                  checked={mqCorrectOption === i}
+                  onChange={() => setMqCorrectOption(i)}
+                  style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                  title="Marcar como alternativa correta"
+                />
+                <span style={{ fontWeight: 'bold', width: '20px' }}>{String.fromCharCode(65 + i)})</span>
+                <input
+                  type="text"
+                  value={opt}
+                  onChange={(e) => {
+                    const newOps = [...mqOptions];
+                    newOps[i] = e.target.value;
+                    setMqOptions(newOps);
+                  }}
+                  placeholder={`Alternativa ${String.fromCharCode(65 + i)}`}
+                  style={{ flex: 1, padding: '10px', borderRadius: '6px', color: '#000' }}
+                />
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <label style={{ fontSize: '14px', color: '#94a3b8', display: 'block', marginBottom: '5px' }}>Explicação (Opcional):</label>
+            <textarea
+              value={mqExplanation}
+              onChange={(e) => setMqExplanation(e.target.value)}
+              placeholder="Explicação do gabarito..."
+              style={{ width: '100%', height: '80px', borderRadius: '8px', padding: '12px', color: '#000' }}
+            />
+          </div>
+
+          <button
+            onClick={salvarQuestaoManual}
+            disabled={isAddingQuestion}
+            style={{
+              background: '#10b981', color: '#fff', padding: '12px', border: 'none',
+              borderRadius: '8px', cursor: isAddingQuestion ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '16px',
+              opacity: isAddingQuestion ? 0.7 : 1
+            }}
+          >
+            {isAddingQuestion ? 'Salvando...' : '💾 Salvar Questão'}
+          </button>
+        </div>
+      </div>
+
+      {/* IMPORTADOR EM LOTE JSON */}
       <div style={{ background: '#0f172a', padding: '25px', borderRadius: '15px', marginBottom: '40px' }}>
         <h2 style={{ fontSize: '18px', marginBottom: '15px' }}>🚀 Novo Lote de Questões</h2>
         <textarea

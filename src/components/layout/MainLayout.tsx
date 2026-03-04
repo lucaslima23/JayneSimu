@@ -124,7 +124,7 @@ export function MainLayout() {
             </div>
             <div>
               <h1 className="text-xl font-display font-bold text-white">JayneSimu</h1>
-              <p className="text-xs text-secondary-500">Residência Médica</p>
+              <p className="text-xs text-secondary-500">Cursinhos Preparatórios</p>
             </div>
           </div>
         </div>
@@ -132,7 +132,13 @@ export function MainLayout() {
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
           {navItems.filter(item => {
-            if (user?.role === 'student' && (item.to === '/dashboard' || item.to === '/revisao')) {
+            if (user?.role !== 'admin' && (
+              item.to === '/dashboard' ||
+              item.to === '/revisao' ||
+              item.to === '/questoes' ||
+              item.to === '/flashcards' ||
+              item.to === '/rankings'
+            )) {
               return false;
             }
             return true;

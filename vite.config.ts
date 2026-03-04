@@ -9,7 +9,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png', 'favicon.svg'],
       manifest: {
-        name: 'JayneSimu - Preparação Residência Médica',
+        name: 'JayneSimu - Preparação Cursinhos Preparatórios',
         short_name: 'JayneSimu',
         description: 'Plataforma de estudos para ENAMED/ENARE',
         theme_color: '#0F766E',

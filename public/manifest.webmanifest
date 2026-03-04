@@ -1,7 +1,7 @@
 {
-  "name": "JayneSimu - Preparação Residência Médica",
+  "name": "JayneSimu - Preparação Cursinhos Preparatórios",
   "short_name": "JayneSimu",
-  "description": "Plataforma completa de estudos para residência médica ENAMED/ENARE com questões, simulados, flashcards e sistema SRS de revisão",
+  "description": "Plataforma completa de estudos para Cursinhos Preparatórios ENAMED/ENARE com questões, simulados, flashcards e sistema SRS de revisão",
   "start_url": "/",
   "display": "standalone",
   "scope": "/",

@@ -1,6 +1,6 @@
 # JayneSimu LMS 🩺
 
-Plataforma de Estudos para Residência Médica (ENAMED/ENARE)
+Plataforma de Estudos para Cursinhos Preparatórios (ENAMED/ENARE)
 
 ![JayneSimu Dashboard](https://via.placeholder.com/800x400/0f172a/14b8a6?text=JayneSimu+LMS)
 
@@ -21,7 +21,7 @@ Plataforma de Estudos para Residência Médica (ENAMED/ENARE)
 
 ## 🎯 Visão Geral
 
-JayneSimu é uma plataforma LMS (Learning Management System) especializada na preparação para provas de residência médica, com foco em:
+JayneSimu é uma plataforma LMS (Learning Management System) especializada na preparação para provas de Cursinhos Preparatórios, com foco em:
 
 - **Aprendizado Ativo**: Sistema de repetição espaçada (SRS) para otimizar a retenção
 - **Cronograma Personalizado**: Agenda de estudos baseada em calendário
@@ -559,6 +559,6 @@ Este projeto é proprietário. Todos os direitos reservados.
 
 ## 👨‍💻 Desenvolvido para
 
-Preparação para Residência Médica - ENAMED/ENARE
+Preparação para Cursinhos Preparatórios - ENAMED/ENARE
 
 **Bons estudos! 📚🩺**
