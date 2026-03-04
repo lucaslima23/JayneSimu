@@ -45,6 +45,7 @@ interface AuthContextType {
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (data: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -159,6 +160,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const updateUser = (data: Partial<User>) => {
+    if (user) {
+      setUser({ ...user, ...data });
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -167,7 +174,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         loading,
         error,
         login,
-        logout
+        logout,
+        updateUser
       }}
     >
       {children}

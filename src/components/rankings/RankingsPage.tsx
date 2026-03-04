@@ -4,9 +4,9 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Medal, Trophy, Target, Flame, Loader2 } from 'lucide-react';
+import { Medal, Trophy, Target, Flame, Loader2, Lock, Unlock } from 'lucide-react';
 import { Card } from '../common';
-import { analyticsService } from '../../services/firebase';
+import { analyticsService, userService } from '../../services/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import { clsx } from 'clsx';
 import {
@@ -90,9 +90,12 @@ function RankingItem({ entry, isCurrentUser, type }: { entry: RankingEntry, isCu
 }
 
 export default function RankingsPage() {
-    const { user } = useAuth();
+    const { user, updateUser } = useAuth();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<RankingsData | null>(null);
+    const [isSavingOptIn, setIsSavingOptIn] = useState(false);
+
+    const isOptedIn = user?.settings?.rankingOptIn === true;
 
     useEffect(() => {
         const fetchRankings = async () => {
@@ -103,6 +106,52 @@ export default function RankingsPage() {
         };
         fetchRankings();
     }, []);
+
+    const handleToggleOptIn = async () => {
+        if (!user || isSavingOptIn) return;
+
+        const now = new Date();
+        const lastOptInDateStr = user.settings?.rankingOptInDate;
+
+        // Se o usuário está tentando DESLIGAR
+        if (isOptedIn) {
+            if (lastOptInDateStr) {
+                const lastDate = new Date(lastOptInDateStr);
+                const diffTime = Math.abs(now.getTime() - lastDate.getTime());
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays < 15) {
+                    alert(`Você não pode ocultar seu perfil no ranking ainda. É necessário aguardar 15 dias após a última alteração. Faltam ${15 - diffDays} dias.`);
+                    return;
+                }
+            }
+            // Pode desligar se passou do tempo
+            await updateOptInStatus(false, now.toISOString());
+        } else {
+            // Se o usuário está tentando LIGAR
+            const confirmAlert = window.confirm("Ao ativar, seus resultados aparecerão no ranking geral e você não poderá ocultá-los por 15 dias. Deseja continuar?");
+            if (!confirmAlert) return;
+            await updateOptInStatus(true, now.toISOString());
+        }
+    };
+
+    const updateOptInStatus = async (optInValue: boolean, dateStr: string) => {
+        setIsSavingOptIn(true);
+        try {
+            const newSettings = {
+                ...(user?.settings || {}),
+                rankingOptIn: optInValue,
+                rankingOptInDate: dateStr
+            };
+            await userService.updateSettings(user!.uid, newSettings);
+            updateUser({ settings: newSettings } as any);
+        } catch (error) {
+            console.error("Erro ao atualizar preferência de ranking", error);
+            alert("Erro ao salvar configuração.");
+        } finally {
+            setIsSavingOptIn(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -141,7 +190,7 @@ export default function RankingsPage() {
 
     return (
         <div className="max-w-6xl mx-auto space-y-6">
-            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="flex items-center gap-3 mb-2">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-glow">
                         <Medal className="w-6 h-6 text-white" />
@@ -151,108 +200,154 @@ export default function RankingsPage() {
                         <p className="text-secondary-400">Classificação e desempenho dos últimos 15 dias</p>
                     </div>
                 </div>
+
+                {/* iOS Style Toggle */}
+                <div className="flex items-center gap-3 bg-secondary-800/50 p-3 rounded-xl border border-secondary-700">
+                    <span className="text-sm font-medium text-secondary-200">
+                        Apresentar meus resultados no ranking geral
+                    </span>
+                    <button
+                        onClick={handleToggleOptIn}
+                        disabled={isSavingOptIn}
+                        className={clsx(
+                            "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-secondary-900 shadow-inner",
+                            isOptedIn ? "bg-accent-emerald" : "bg-secondary-600",
+                            isSavingOptIn && "opacity-50 cursor-not-allowed"
+                        )}
+                    >
+                        <span className="sr-only">Toggle global ranking participation</span>
+                        <span
+                            aria-hidden="true"
+                            className={clsx(
+                                "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                                isOptedIn ? "translate-x-5" : "translate-x-0"
+                            )}
+                        />
+                    </button>
+                </div>
             </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Assiduidade */}
-                <Card className="p-6">
-                    <div className="flex items-center gap-2 mb-6">
-                        <Flame className="w-5 h-5 text-accent-amber" />
-                        <h2 className="text-xl font-bold text-white">Top Assiduidade</h2>
+            {/* Container for the Blur effect */}
+            <div className="relative">
+                {!isOptedIn && (
+                    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center rounded-xl bg-secondary-900/60 backdrop-blur-[2px] border border-secondary-700 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]">
+                        <Lock className="w-16 h-16 text-secondary-500 mb-4" />
+                        <h3 className="text-2xl font-bold text-white mb-2 text-center px-4">Ranking Bloqueado</h3>
+                        <p className="text-secondary-300 text-center max-w-md px-6 mb-6">
+                            Você precisa habilitar "Apresentar meus resultados no ranking geral" acima para participar e visualizar a classificação global da plataforma.
+                        </p>
+                        <button
+                            onClick={handleToggleOptIn}
+                            className="flex items-center gap-2 bg-primary-600 hover:bg-primary-500 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-glow"
+                        >
+                            <Unlock className="w-5 h-5" />
+                            Habilitar Participação no Ranking
+                        </button>
                     </div>
-                    <div className="space-y-3">
-                        {assiduidadeList.length > 0 ? (
-                            assiduidadeList.map((entry, idx) => (
-                                <RankingItem
-                                    key={`ass_${entry.userId}_${idx}`}
-                                    entry={entry}
-                                    isCurrentUser={entry.userId === user?.uid}
-                                    type="assiduidade"
-                                />
-                            ))
-                        ) : (
-                            <p className="text-secondary-500 text-center py-4">Poucos dados nos últimos 15 dias.</p>
-                        )}
-                    </div>
-                </Card>
+                )}
 
-                {/* Taxa de Acerto */}
-                <Card className="p-6">
-                    <div className="flex items-center gap-2 mb-6">
-                        <Target className="w-5 h-5 text-primary-400" />
-                        <h2 className="text-xl font-bold text-white">Top Precisão</h2>
-                    </div>
-                    <div className="space-y-3">
-                        {accuracyList.length > 0 ? (
-                            accuracyList.map((entry, idx) => (
-                                <RankingItem
-                                    key={`acc_${entry.userId}_${idx}`}
-                                    entry={entry}
-                                    isCurrentUser={entry.userId === user?.uid}
-                                    type="accuracy"
-                                />
-                            ))
-                        ) : (
-                            <p className="text-secondary-500 text-center py-4">Poucos dados nos últimos 15 dias.</p>
-                        )}
-                    </div>
-                </Card>
-            </div>
-
-            {/* Gráfico Comparativo */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                <Card className="p-6">
-                    <div className="flex items-center justify-between mb-8">
-                        <div>
-                            <h2 className="text-xl font-bold text-white">Seu Desempenho vs. Média Global</h2>
-                            <p className="text-sm text-secondary-400">Taxa de acerto (%) por Grande Área nos últimos 15 dias</p>
+                <div className={clsx("grid grid-cols-1 lg:grid-cols-2 gap-6 transition-all duration-500", !isOptedIn && "blur-md opacity-30 pointer-events-none select-none overflow-hidden")}>
+                    {/* Assiduidade */}
+                    <Card className="p-6">
+                        <div className="flex items-center gap-2 mb-6">
+                            <Flame className="w-5 h-5 text-accent-amber" />
+                            <h2 className="text-xl font-bold text-white">Top Assiduidade</h2>
                         </div>
-                        <div className="text-right">
-                            <p className="text-xs text-secondary-400 uppercase font-bold tracking-wider mb-1">Média Global Geral</p>
-                            <p className="text-2xl font-bold text-white">{data.globalAverageAccuracy.toFixed(1)}%</p>
+                        <div className="space-y-3">
+                            {assiduidadeList.length > 0 ? (
+                                assiduidadeList.map((entry, idx) => (
+                                    <RankingItem
+                                        key={`ass_${entry.userId}_${idx}`}
+                                        entry={entry}
+                                        isCurrentUser={entry.userId === user?.uid}
+                                        type="assiduidade"
+                                    />
+                                ))
+                            ) : (
+                                <p className="text-secondary-500 text-center py-4">Poucos dados nos últimos 15 dias.</p>
+                            )}
                         </div>
-                    </div>
+                    </Card>
 
-                    <div className="h-[350px] w-full mt-4">
-                        {chartData.length > 0 ? (
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                                    <XAxis
-                                        dataKey="subject"
-                                        stroke="#94a3b8"
-                                        tick={{ fill: '#94a3b8', fontSize: 12 }}
-                                        tickLine={false}
-                                        axisLine={false}
+                    {/* Taxa de Acerto */}
+                    <Card className="p-6">
+                        <div className="flex items-center gap-2 mb-6">
+                            <Target className="w-5 h-5 text-primary-400" />
+                            <h2 className="text-xl font-bold text-white">Top Precisão</h2>
+                        </div>
+                        <div className="space-y-3">
+                            {accuracyList.length > 0 ? (
+                                accuracyList.map((entry, idx) => (
+                                    <RankingItem
+                                        key={`acc_${entry.userId}_${idx}`}
+                                        entry={entry}
+                                        isCurrentUser={entry.userId === user?.uid}
+                                        type="accuracy"
                                     />
-                                    <YAxis
-                                        stroke="#94a3b8"
-                                        tick={{ fill: '#94a3b8', fontSize: 12 }}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        domain={[0, 100]}
-                                        tickFormatter={(value) => `${value}%`}
-                                    />
-                                    <Tooltip
-                                        cursor={{ fill: '#334155', opacity: 0.4 }}
-                                        contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '0.75rem', color: '#f8fafc' }}
-                                        itemStyle={{ color: '#f8fafc' }}
-                                        formatter={(value: number) => [`${value}%`]}
-                                    />
-                                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                                    <Bar dataKey="user" name="Sua Precisão" fill="#0ea5e9" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                                    <Bar dataKey="global" name="Média Global" fill="#475569" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        ) : (
-                            <div className="w-full h-full flex flex-col items-center justify-center border border-dashed border-secondary-700 rounded-xl">
-                                <Target className="w-8 h-8 text-secondary-600 mb-2" />
-                                <p className="text-secondary-400">Nenhum dado de questão encontrado neste período.</p>
+                                ))
+                            ) : (
+                                <p className="text-secondary-500 text-center py-4">Poucos dados nos últimos 15 dias.</p>
+                            )}
+                        </div>
+                    </Card>
+                </div>
+
+                {/* Gráfico Comparativo */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+                    <Card className="p-6">
+                        <div className="flex items-center justify-between mb-8">
+                            <div>
+                                <h2 className="text-xl font-bold text-white">Seu Desempenho vs. Média Global</h2>
+                                <p className="text-sm text-secondary-400">Taxa de acerto (%) por Grande Área nos últimos 15 dias</p>
                             </div>
-                        )}
-                    </div>
-                </Card>
-            </motion.div>
+                            <div className="text-right">
+                                <p className="text-xs text-secondary-400 uppercase font-bold tracking-wider mb-1">Média Global Geral</p>
+                                <p className="text-2xl font-bold text-white">{data.globalAverageAccuracy.toFixed(1)}%</p>
+                            </div>
+                        </div>
+
+                        <div className="h-[350px] w-full mt-4">
+                            {chartData.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                                        <XAxis
+                                            dataKey="subject"
+                                            stroke="#94a3b8"
+                                            tick={{ fill: '#94a3b8', fontSize: 12 }}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+                                        <YAxis
+                                            stroke="#94a3b8"
+                                            tick={{ fill: '#94a3b8', fontSize: 12 }}
+                                            tickLine={false}
+                                            axisLine={false}
+                                            domain={[0, 100]}
+                                            tickFormatter={(value) => `${value}%`}
+                                        />
+                                        <Tooltip
+                                            cursor={{ fill: '#334155', opacity: 0.4 }}
+                                            contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '0.75rem', color: '#f8fafc' }}
+                                            itemStyle={{ color: '#f8fafc' }}
+                                            formatter={(value: number) => [`${value}%`]}
+                                        />
+                                        <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                                        <Bar dataKey="user" name="Sua Precisão" fill="#0ea5e9" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                        <Bar dataKey="global" name="Média Global" fill="#475569" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="w-full h-full flex flex-col items-center justify-center border border-dashed border-secondary-700 rounded-xl">
+                                    <Target className="w-8 h-8 text-secondary-600 mb-2" />
+                                    <p className="text-secondary-400">Nenhum dado de questão encontrado neste período.</p>
+                                </div>
+                            )}
+                        </div>
+                    </Card>
+                </motion.div>
+
+            </div> {/* End of the Relative Blur Wrapper */}
 
         </div>
     );

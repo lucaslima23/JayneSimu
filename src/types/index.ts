@@ -20,6 +20,8 @@ export interface UserSettings {
   notifications: boolean;
   darkMode: boolean;
   soundEffects: boolean;
+  rankingOptIn?: boolean;   // Opt-in for Global Rankings
+  rankingOptInDate?: string; // Date when opt-in was last changed
 }
 
 // Drive Media Types
