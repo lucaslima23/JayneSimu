@@ -50,3 +50,7 @@ dev-dist
 .cache
 .temp
 .tmp
+
+# Firebase
+.firebase
+firebase-debug.log
