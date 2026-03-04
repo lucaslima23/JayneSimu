@@ -234,10 +234,21 @@ export function QuestionCard({
             </Button>
           </>
         ) : (
-          <Button onClick={onNext} size="lg" className="flex-1">
-            {questionNumber < totalQuestions ? 'Próxima Questão' : 'Ver Resultados'}
-            <ChevronRight className="w-5 h-5 ml-2" />
-          </Button>
+          <>
+            <Button onClick={onNext} size="lg" className="flex-1">
+              {questionNumber < totalQuestions ? 'Próxima Questão' : 'Ver Resultados'}
+              <ChevronRight className="w-5 h-5 ml-2" />
+            </Button>
+            <Button
+              onClick={() => setShowReportForm(!showReportForm)}
+              variant="ghost"
+              size="lg"
+              className="flex-shrink-0"
+              title="Reportar questão problemática"
+            >
+              <Flag className="w-5 h-5" />
+            </Button>
+          </>
         )}
       </motion.div>
 
