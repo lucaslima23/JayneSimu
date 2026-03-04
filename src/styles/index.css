@@ -60,7 +60,7 @@
 
   /* Gradient Text */
   .gradient-text {
-    @apply bg-gradient-to-r from-primary-400 to-accent-cyan bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary-400 via-accent-magenta to-accent-violet bg-clip-text text-transparent;
   }
 
   /* Glow Button */

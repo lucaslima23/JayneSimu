@@ -7,47 +7,48 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Medical Tech Palette - Dark Theme
+        // Rainbow Warrior Theme - Dark Theme
         primary: {
-          50: '#f0fdfa',
-          100: '#ccfbf1',
-          200: '#99f6e4',
-          300: '#5eead4',
-          400: '#2dd4bf',
-          500: '#14b8a6', // Teal principal
-          600: '#0d9488',
-          700: '#0f766e',
-          800: '#115e59',
-          900: '#134e4a',
-          950: '#042f2e',
+          50: '#ecfdf5',
+          100: '#d1fae5',
+          200: '#a7f3d0',
+          300: '#6ee7b7',
+          400: '#34d399',
+          500: '#10b981', // Verde Guerreira
+          600: '#059669',
+          700: '#047857',
+          800: '#065f46',
+          900: '#064e3b',
+          950: '#022c22',
         },
         secondary: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a', // Background principal
-          950: '#020617',
+          50: '#fafafa',
+          100: '#f4f4f5',
+          200: '#e4e4e7',
+          300: '#d4d4d8',
+          400: '#a1a1aa',
+          500: '#71717a',
+          600: '#52525b',
+          700: '#3f3f46',
+          800: '#27272a',
+          900: '#18181b', // Background Neutro Escuro
+          950: '#09090b',
         },
         accent: {
           cyan: '#06b6d4',
           emerald: '#10b981',
-          amber: '#f59e0b',
-          rose: '#f43f5e',
-          violet: '#8b5cf6',
+          amber: '#ea580c', // Darker amber/orange
+          rose: '#e11d48',
+          violet: '#9333ea', // Deep violet for rainbow accent
+          magenta: '#d946ef',
         },
         // Specialty colors for medical categories
         specialty: {
-          ginecologia: '#ec4899',    // Pink
+          ginecologia: '#d946ef',    // Magenta
           cirurgia: '#ef4444',       // Red
           clinica: '#3b82f6',        // Blue
           pediatria: '#f97316',      // Orange
-          preventiva: '#22c55e',     // Green
+          preventiva: '#10b981',     // Green
         }
       },
       fontFamily: {
@@ -57,9 +58,9 @@ export default {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-medical': 'linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #0f172a 100%)',
-        'gradient-card': 'linear-gradient(180deg, rgba(20, 184, 166, 0.1) 0%, rgba(15, 23, 42, 0.8) 100%)',
-        'mesh-pattern': `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2314b8a6' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        'gradient-medical': 'linear-gradient(135deg, #18181b 0%, #064e3b 50%, #18181b 100%)',
+        'gradient-card': 'linear-gradient(180deg, rgba(16, 185, 129, 0.1) 0%, rgba(24, 24, 27, 0.8) 100%)',
+        'mesh-pattern': `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310b981' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out',
@@ -91,9 +92,9 @@ export default {
         },
       },
       boxShadow: {
-        'glow': '0 0 20px rgba(20, 184, 166, 0.3)',
-        'glow-lg': '0 0 40px rgba(20, 184, 166, 0.4)',
-        'inner-glow': 'inset 0 0 20px rgba(20, 184, 166, 0.1)',
+        'glow': '0 0 20px rgba(16, 185, 129, 0.3)',
+        'glow-lg': '0 0 40px rgba(16, 185, 129, 0.4)',
+        'inner-glow': 'inset 0 0 20px rgba(16, 185, 129, 0.1)',
       },
     },
   },
