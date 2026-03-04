@@ -5,7 +5,7 @@
 import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, AlertCircle, Stethoscope, CheckCircle, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, AlertCircle, Glasses, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button, Input, Card } from '../common';
 import { authService } from '../../services/firebase';
@@ -88,14 +88,14 @@ export function LoginPage() {
               transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
               className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 mb-4 shadow-glow"
             >
-              <Stethoscope className="w-8 h-8 text-white" />
+              <Glasses className="w-8 h-8 text-white" />
             </motion.div>
 
             <h1 className="text-3xl font-display font-bold text-white mb-2">
               JayneSimu
             </h1>
             <p className="text-secondary-400">
-              Plataforma de Estudos para Residência Médica
+              Plataforma de Estudos para Concursos e Especialização
             </p>
           </div>
 
@@ -188,7 +188,7 @@ export function LoginPage() {
 
         {/* Footer */}
         <p className="text-center text-xs text-secondary-600 mt-6">
-          ENAMED • ENARE • Preparação para Residência Médica
+          Preparação Especializada • Seu novo desafio
         </p>
       </motion.div>
     </div>
